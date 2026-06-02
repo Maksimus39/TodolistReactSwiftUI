@@ -9,12 +9,9 @@ struct Task: Identifiable {
 struct TodolistItem: View {
     // -> Data
     let title: String
-    private var tasks: [Task]
-    
-    init(title: String, tasks: [Task]) {
-        self.title = title
-        self.tasks = tasks
-    }
+    let tasks: [Task]
+    let deleteTask: (Int) -> Void
+    let changeFilter: (Filter) -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -34,7 +31,9 @@ struct TodolistItem: View {
                         RoundedRectangle(cornerRadius: 8)
                             .stroke(.gray, lineWidth: 1)
                     )
-                UniversalButton(title: "Add")
+                UniversalButton(title: "Add") {
+                    print("Add")
+                }
             }
             
             VStack(alignment: .leading, spacing: 8) {
@@ -44,16 +43,47 @@ struct TodolistItem: View {
                 
                 ForEach(tasks) { el in
                     HStack {
-                        Image(systemName: el.isDone ? "checkmark.square" : "square")
+                        Image(el.isDone ? ImageResource.yes : ImageResource.stop)
+                            .resizable()
+                            .frame(width: 24, height: 24)
                         Text(el.title)
+                            .strikethrough(!el.isDone, color: .red)
+                        Spacer()
+                        Button("Delete") {
+                            print(el.id)
+                            deleteTask(el.id)
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(.white)
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(.gray, lineWidth: 1)
+                        )
                     }
                 }
             }
             
             HStack(spacing: 16) {
-                UniversalButton(title: "All")
-                UniversalButton(title: "Active")
-                UniversalButton(title: "Completed")
+                UniversalButton(title: Filter.all.rawValue) {
+                    changeFilter(.all)
+                }
+                UniversalButton(title: Filter.active.rawValue) {
+                    changeFilter(.active)
+                }
+                UniversalButton(title: Filter.completed.rawValue) {
+                    changeFilter(.completed)
+                }
+                
+                // --------------- или так ---------------------------------------
+                //                ForEach(Filter.allCases, id: \.self) { filter in
+                //                      UniversalButton(title: filter.rawValue) {
+                //                          changeFilter(filter)
+                //                      }
+                //                  }
             }
         }
         .padding(.horizontal, 12)

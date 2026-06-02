@@ -3,9 +3,12 @@ import SwiftUI
 
 struct UniversalButton : View {
     let title: String
+    let onClickHandler: () -> Void
     
     var body: some View {
-        Button(title) {}
+        Button(title) {
+            onClickHandler()
+        }
             .padding(.horizontal, 12)
             .padding(.vertical, 6)
             .background(
