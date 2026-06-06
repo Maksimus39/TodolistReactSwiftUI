@@ -9,15 +9,17 @@ struct UniversalButton : View {
         Button(title) {
             onClickHandler()
         }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
-            .background(
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(.white)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(.gray, lineWidth: 1)
-            )
+        .buttonStyle(.plain) // ✅ Сбрасывает серый фон
+        .padding(.horizontal, 12)
+        .padding(.vertical, 6)
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .fill(.white)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(.gray, lineWidth: 1)
+        )
     }
+    
 }

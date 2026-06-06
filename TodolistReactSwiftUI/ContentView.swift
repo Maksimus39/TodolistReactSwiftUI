@@ -8,33 +8,33 @@ enum Filter: String, CaseIterable {
 
 struct ContentView: View {
     // Data
-    let todolistIOSTitle: String = "IOS developer"
+    let todolistIOSTitle:String = "IOS developer"
     
-    @State var tasksIOS = [
-        Task(id: 1, title: "Swift", isDone: true),
-        Task(id: 2, title: "UIKit", isDone: true),
-        Task(id: 3, title: "SwiftUI", isDone: true),
-        Task(id: 4, title: "URLSession", isDone: true),
-        Task(id: 5, title: "Alamofire", isDone: true),
-        Task(id: 6, title: "CoreData", isDone: false),
-        Task(id: 7, title: "SwiftData", isDone: false),
-        Task(id: 8, title: "Firebase", isDone: false),
-        Task(id: 9, title: "GCD", isDone: false),
-        Task(id: 10, title: "Combine", isDone: false),
-        Task(id: 11, title: "Viper", isDone: false),
-        Task(id: 12, title: "Clean Architecture", isDone: false),
-        Task(id: 13, title: "MVP", isDone: true),
-        Task(id: 14, title: "MVVM", isDone: true),
-        Task(id: 15, title: "HitTest. UIResponderChain", isDone: false),
-        Task(id: 16, title: "Unit Tests", isDone: false),
-        Task(id: 17, title: "diffibleDataSource", isDone: false),
-        Task(id: 18, title: "SdWebImage", isDone: true),
-        Task(id: 19, title: "В общем я хочу осваивать IOS Dev)))", isDone: true),
+    @State var tasksIOS: [Task] = [
+        Task(id: UUID(), title: "Swift", isDone: true),
+        Task(id: UUID(), title: "UIKit", isDone: true),
+        Task(id: UUID(), title: "SwiftUI", isDone: true),
+        Task(id: UUID(), title: "URLSession", isDone: true),
+        Task(id: UUID(), title: "Alamofire", isDone: true),
+        Task(id: UUID(), title: "CoreData", isDone: false),
+        Task(id: UUID(), title: "SwiftData", isDone: false),
+        Task(id: UUID(), title: "Firebase", isDone: false),
+        Task(id: UUID(), title: "GCD", isDone: false),
+        Task(id: UUID(), title: "Combine", isDone: false),
+        Task(id: UUID(), title: "Viper", isDone: false),
+        Task(id: UUID(), title: "Clean Architecture", isDone: false),
+        Task(id: UUID(), title: "MVP", isDone: true),
+        Task(id: UUID(), title: "MVVM", isDone: true),
+        Task(id: UUID(), title: "HitTest. UIResponderChain", isDone: false),
+        Task(id: UUID(), title: "Unit Tests", isDone: false),
+        Task(id: UUID(), title: "diffibleDataSource", isDone: false),
+        Task(id: UUID(), title: "SdWebImage", isDone: true),
+        Task(id: UUID(), title: "Я изучаю IOS Dev)))", isDone: true),
     ]
     @State var filter: Filter = .all
-
+    
     // Delete tasks
-    func deleteTask (deleteTask: Int) {
+    func deleteTask (deleteTask: UUID) {
         tasksIOS = tasksIOS.filter { $0.id != deleteTask }
     }
     
@@ -54,14 +54,21 @@ struct ContentView: View {
         filter = filterTasks
     }
     
+    func createTask (taskTitle: String) {
+        let newTask: Task = Task(id: UUID(), title: taskTitle, isDone: false)
+        tasksIOS.insert(newTask, at: 0)
+    }
+    
     // UI
     var body: some View {
         ScrollView {
-            VStack {
-                TodolistItem(title: todolistIOSTitle,
-                             tasks: filteredTasks,
-                             deleteTask: deleteTask,
-                             changeFilter: changeFilter
+            LazyVStack {
+                TodolistItem(
+                    title: todolistIOSTitle,
+                    tasks: filteredTasks,
+                    deleteTask: deleteTask,
+                    changeFilter: changeFilter,
+                    createTask: createTask
                 )
             }
         }

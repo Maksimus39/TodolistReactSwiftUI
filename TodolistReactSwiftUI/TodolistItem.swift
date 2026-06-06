@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct Task: Identifiable {
-    let id: Int
+    let id: UUID
     let title: String
     let isDone: Bool
 }
@@ -10,8 +10,11 @@ struct TodolistItem: View {
     // -> Data
     let title: String
     let tasks: [Task]
-    let deleteTask: (Int) -> Void
+    let deleteTask: (UUID) -> Void
     let changeFilter: (Filter) -> Void
+    let createTask: (String) -> Void
+    
+    @State var newTaskText: String = ""
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -20,7 +23,7 @@ struct TodolistItem: View {
                 .fontWeight(.bold)
             
             HStack {
-                TextField("", text: .constant(""))
+                TextField("Placeholder", text: $newTaskText)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 6)
                     .background(
@@ -33,6 +36,9 @@ struct TodolistItem: View {
                     )
                 UniversalButton(title: "Add") {
                     print("Add")
+                    guard !newTaskText.trimmingCharacters(in: .whitespaces).isEmpty else { return }
+                    createTask(newTaskText)
+                    newTaskText = ""
                 }
             }
             
@@ -43,26 +49,16 @@ struct TodolistItem: View {
                 
                 ForEach(tasks) { el in
                     HStack {
-                        Image(el.isDone ? ImageResource.yes : ImageResource.stop)
+                        Image(el.isDone ? .yes : .stop)
                             .resizable()
                             .frame(width: 24, height: 24)
                         Text(el.title)
                             .strikethrough(!el.isDone, color: .red)
                         Spacer()
-                        Button("Delete") {
+                        UniversalButton(title: "Delete") {
                             print(el.id)
                             deleteTask(el.id)
                         }
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(.white)
-                        )
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(.gray, lineWidth: 1)
-                        )
                     }
                 }
             }
@@ -91,6 +87,8 @@ struct TodolistItem: View {
         .background(
             RoundedRectangle(cornerRadius: 12)
                 .fill(.yellow.opacity(0.3))
+                            .drawingGroup()
+                            .shadow(color: .black.opacity(0.5), radius: 9, x: 9, y: 9)
         )
         .shadow(color: .black.opacity(0.5), radius: 9, x: 9, y: 9)
         .padding()
