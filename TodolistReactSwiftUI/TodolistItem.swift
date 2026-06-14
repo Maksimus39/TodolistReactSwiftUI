@@ -13,8 +13,11 @@ struct TodolistItem: View {
     let deleteTask: (UUID) -> Void
     let changeFilter: (Filter) -> Void
     let createTask: (String) -> Void
+    let changeTasksStatus: (UUID, Bool) -> Void
+    let filter: Filter
     
     @State var newTaskText: String = ""
+    @State var error: Bool = false
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -32,14 +35,31 @@ struct TodolistItem: View {
                     )
                     .overlay(
                         RoundedRectangle(cornerRadius: 8)
-                            .stroke(.gray, lineWidth: 1)
+                            .stroke(error ? .red : .gray, lineWidth: 1)
                     )
+                    .onChange(of: newTaskText) { oldValue, newValue in
+                        if error && !newValue.trimmingCharacters(in: .whitespaces).isEmpty {
+                            error = false
+                        }
+                    }
                 UniversalButton(title: "Add") {
                     print("Add")
-                    guard !newTaskText.trimmingCharacters(in: .whitespaces).isEmpty else { return }
-                    createTask(newTaskText)
-                    newTaskText = ""
+                    if newTaskText.trimmingCharacters(in: .whitespaces).isEmpty {
+                        error = true
+                    } else {
+                        error = false
+                        createTask(newTaskText)
+                        newTaskText = ""
+                    }
                 }
+            }
+            
+            if error {
+                Text("⚠️ Пожалуйста, заполните поле")
+                    .foregroundColor(.red)
+                    .font(.system(size: 18))
+                    .font(.caption)
+                    .padding(.leading, 4)
             }
             
             VStack(alignment: .leading, spacing: 8) {
@@ -48,13 +68,20 @@ struct TodolistItem: View {
                 }
                 
                 ForEach(tasks) { el in
-                    HStack {
+                    HStack(spacing: 20) {
                         Image(el.isDone ? .yes : .stop)
                             .resizable()
-                            .frame(width: 24, height: 24)
+                            .frame(width: 25, height: 25)
+                            .onTapGesture {
+                                changeTasksStatus(el.id, !el.isDone)
+                            }
+                        
                         Text(el.title)
+                            .font(.system(size: 18))
                             .strikethrough(!el.isDone, color: .red)
+                        
                         Spacer()
+                        
                         UniversalButton(title: "Delete") {
                             print(el.id)
                             deleteTask(el.id)
@@ -64,22 +91,21 @@ struct TodolistItem: View {
             }
             
             HStack(spacing: 16) {
-                UniversalButton(title: Filter.all.rawValue) {
-                    changeFilter(.all)
-                }
-                UniversalButton(title: Filter.active.rawValue) {
-                    changeFilter(.active)
-                }
-                UniversalButton(title: Filter.completed.rawValue) {
-                    changeFilter(.completed)
-                }
-                
-                // --------------- или так ---------------------------------------
-                //                ForEach(Filter.allCases, id: \.self) { filter in
-                //                      UniversalButton(title: filter.rawValue) {
-                //                          changeFilter(filter)
-                //                      }
-                //                  }
+                UniversalButton(
+                    title: Filter.all.rawValue,
+                    onClickHandler: { changeFilter(.all) },
+                    isActive: filter == .all
+                )
+                UniversalButton(
+                    title: Filter.active.rawValue,
+                    onClickHandler: { changeFilter(.active) },
+                    isActive: filter == .active
+                )
+                UniversalButton(
+                    title: Filter.completed.rawValue,
+                    onClickHandler: { changeFilter(.completed) },
+                    isActive: filter == .completed
+                )
             }
         }
         .padding(.horizontal, 12)
@@ -87,8 +113,8 @@ struct TodolistItem: View {
         .background(
             RoundedRectangle(cornerRadius: 12)
                 .fill(.yellow.opacity(0.3))
-                            .drawingGroup()
-                            .shadow(color: .black.opacity(0.5), radius: 9, x: 9, y: 9)
+                .drawingGroup()
+                .shadow(color: .black.opacity(0.5), radius: 9, x: 9, y: 9)
         )
         .shadow(color: .black.opacity(0.5), radius: 9, x: 9, y: 9)
         .padding()

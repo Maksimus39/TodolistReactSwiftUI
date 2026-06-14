@@ -54,10 +54,16 @@ struct ContentView: View {
         filter = filterTasks
     }
     
+    // Create task
     func createTask (taskTitle: String) {
-        let newTask: Task = Task(id: UUID(), title: taskTitle, isDone: false)
-        tasksIOS.insert(newTask, at: 0)
+        tasksIOS.insert(Task(id: UUID(), title: taskTitle, isDone: false), at: 0)
     }
+    
+    // Update tasks
+    func changeTasksStatus(taskID: UUID, newStatus: Bool) {
+        tasksIOS = tasksIOS.map { $0.id == taskID ? Task(id: $0.id, title: $0.title, isDone: newStatus) : $0 }
+    }
+    
     
     // UI
     var body: some View {
@@ -68,7 +74,9 @@ struct ContentView: View {
                     tasks: filteredTasks,
                     deleteTask: deleteTask,
                     changeFilter: changeFilter,
-                    createTask: createTask
+                    createTask: createTask,
+                    changeTasksStatus: changeTasksStatus,
+                    filter: filter,
                 )
             }
         }
