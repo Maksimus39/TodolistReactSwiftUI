@@ -1,108 +1,85 @@
 import SwiftUI
 
-
 struct TodolistItem: View {
-    // -> Data
-    let id: UUID
-    let title: String
-    let filter: FilterValuesType
-    let tasks: [TaskItem]
-    let deleteTask: (UUID, UUID) -> Void
-    let changeFilter: (FilterValuesType, UUID) -> Void
-    let createTask: (String, UUID) -> Void
-    let changeTasksStatus: (UUID, Bool, UUID) -> Void
-    let deleteTodolist: (UUID) -> Void
+     let id: UUID
+     let title: String
+     let filter: FilterValuesType
+     let tasks: [TaskItem]
+     let deleteTask: (UUID, UUID) -> Void
+     let changeFilter: (FilterValuesType, UUID) -> Void
+     let createTask: (String, UUID) -> Void
+     let changeTasksStatus: (UUID, Bool, UUID) -> Void
+     let deleteTodolist: (UUID) -> Void
+     let changeTaskTitle: (UUID, String, UUID) -> Void
+     let changeTodolistTitle: (String, UUID) -> Void
     
-    @State var newTaskText: String = ""
-    @State var error: Bool = false
+    
+    private func handleTaskTitleChange(taskId: UUID, newTitle: String) {
+        changeTaskTitle(taskId, newTitle, id)
+    }
+    
+    private func createTaskCallback(newTaskTitle: String) {
+        createTask(newTaskTitle, id)
+    }
+    
+    private func changeTodolistTitleCallback(newTitle: String) {
+        changeTodolistTitle(newTitle, id)
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(spacing: 20) {
-                Text(title)
-                    .font(.title)
-                    .fontWeight(.bold)
+                EditableSpan(text: title, onSave: changeTodolistTitleCallback)
                 Spacer()
-                UniversalButton(title: "Delete") { deleteTodolist(id) }
-            }
-           
-            HStack {
-                TextField("Новая задача", text: $newTaskText)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
-                    .background(.white)
-                    .cornerRadius(8)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(error ? .red : .gray, lineWidth: 1)
-                    )
-                    .onChange(of: newTaskText) { oldValue, newValue in
-                        if error && !newValue.trimmingCharacters(in: .whitespaces).isEmpty {error = false}
-                    }
-                
-                UniversalButton(title: "Add") {
-                    if newTaskText.trimmingCharacters(in: .whitespaces).isEmpty {
-                        error = true
-                    } else {
-                        error = false
-                        createTask(newTaskText, id)
-                        newTaskText = ""
-                    }
+                UniversalButton(title: "Delete") {
+                    deleteTodolist(id)
                 }
             }
             
-            if error {
-                Text("⚠️ Пожалуйста, заполните поле")
-                    .foregroundColor(.red)
-                    .font(.system(size: 18))
-                    .font(.caption)
-                    .padding(.leading, 4)
-            }
+            AddItemForm(createTask: createTaskCallback)
             
             VStack(alignment: .leading, spacing: 8) {
                 if tasks.isEmpty {
                     Text("Список пуст")
+                        .foregroundColor(.secondary)
+                        .padding(.vertical, 8)
                 }
                 
-                ForEach(tasks) { el in
+                ForEach(tasks) { task in
                     HStack(spacing: 20) {
-                        Image(el.isDone ? .yes : .stop)
+                        Image(task.isDone ? .yes : .stop)
                             .resizable()
                             .frame(width: 25, height: 25)
                             .onTapGesture {
-                                changeTasksStatus(el.id, !el.isDone, id)
+                                changeTasksStatus(task.id, !task.isDone, id)
                             }
                         
-                        Text(el.title)
-                            .font(.system(size: 18))
-                            .strikethrough(!el.isDone, color: .red)
+                        EditableSpan(
+                            text: task.title,
+                            isDone: task.isDone,
+                            onSave: { newTitle in
+                                handleTaskTitleChange(taskId: task.id, newTitle: newTitle)
+                            }
+                        )
+                        .id(task.id)
                         
                         Spacer()
                         
                         UniversalButton(title: "Delete") {
-                            print(el.id)
-                            deleteTask(el.id, id)
+                            deleteTask(task.id, id)
                         }
                     }
                 }
             }
             
             HStack(spacing: 16) {
-                UniversalButton(
-                    title: FilterValuesType.all.rawValue,
-                    onClickHandler: { changeFilter(.all, id) },
-                    isActive: filter == .all
-                )
-                UniversalButton(
-                    title: FilterValuesType.active.rawValue,
-                    onClickHandler: { changeFilter(.active, id) },
-                    isActive: filter == .active
-                )
-                UniversalButton(
-                    title: FilterValuesType.completed.rawValue,
-                    onClickHandler: { changeFilter(.completed, id) },
-                    isActive: filter == .completed
-                )
+                ForEach(FilterValuesType.allCases, id: \.self) { filterType in
+                    UniversalButton(
+                        title: filterType.rawValue,
+                        onClickHandler: { changeFilter(filterType, id) },
+                        isActive: filter == filterType
+                    )
+                }
             }
         }
         .padding(.horizontal, 12)

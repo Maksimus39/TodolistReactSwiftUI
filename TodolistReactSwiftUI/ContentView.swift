@@ -15,7 +15,7 @@ struct TaskItem: Identifiable, Hashable {
 struct TodolistType: Identifiable {
     let id: UUID
     let title: String
-    var filter: FilterValuesType 
+    var filter: FilterValuesType
 }
 
 typealias TasksStateType = [UUID: [TaskItem]]
@@ -25,9 +25,10 @@ struct ContentView: View {
     static let reactId = UUID()
     
     @State var todolists: [TodolistType] = [
-        TodolistType(id: Self.iosId, title: "IOS developer", filter: .active),
-        TodolistType(id: Self.reactId, title: "React developer", filter: .active),
+        TodolistType(id: Self.iosId, title: "IOS developer", filter: .all),
+        TodolistType(id: Self.reactId, title: "React developer", filter: .all),
     ]
+    
     
     @State var tasks: TasksStateType = [
         Self.iosId: [
@@ -77,8 +78,8 @@ struct ContentView: View {
         ]
     ]
     
-
-    func getFilteredTasks(todolist: TodolistType) -> [TaskItem] {
+    
+    private func getFilteredTasks(todolist: TodolistType) -> [TaskItem] {
         let allTasks = tasks[todolist.id] ?? []
         
         switch todolist.filter {
@@ -92,55 +93,88 @@ struct ContentView: View {
     }
     
     // Delete task
-    func deleteTask(deleteTask: UUID, todolistID: UUID) {
+    private func deleteTask(deleteTask: UUID, todolistID: UUID) {
         tasks[todolistID] = tasks[todolistID]?.filter { $0.id != deleteTask }
     }
     
     // Change filter
-    func changeFilter(filterTasks: FilterValuesType, todolistID: UUID) {
+    private func changeFilter(filterTasks: FilterValuesType, todolistID: UUID) {
         todolists = todolists.map { $0.id == todolistID ? TodolistType(id: $0.id, title: $0.title, filter: filterTasks) : $0 }
     }
     
     // Create task
-    func createTask(taskTitle: String, todolistID: UUID) {
+    private func createTask(taskTitle: String, todolistID: UUID) {
         let newTask = TaskItem(id: UUID(), title: taskTitle, isDone: false)
         tasks[todolistID] = [newTask] + (tasks[todolistID] ?? [])
     }
     
     // Change task status
-    func changeTasksStatus(taskID: UUID, newStatus: Bool, todolistID: UUID) {
+    private func changeTasksStatus(taskID: UUID, newStatus: Bool, todolistID: UUID) {
         tasks[todolistID] = tasks[todolistID]?.map { $0.id == taskID ? TaskItem(id: $0.id, title: $0.title, isDone: newStatus) : $0 }
     }
     
     // Delete todolist
-    func deleteTodolist(todolistID: UUID) {
+    private func deleteTodolist(todolistID: UUID) {
         todolists = todolists.filter { $0.id != todolistID }
         tasks[todolistID] = nil
     }
+    
+    // Create Todolist
+    private func createTodolist(newTodolist: String) {
+        let newList = TodolistType(id: UUID(), title: newTodolist, filter: .all)
+        todolists.insert(newList, at: 0)
         
+        tasks[newList.id] = []
+    }
+    
+    // Change Task Title
+    private func changeTaskTitle(taskID: UUID, newTitle: String, todolistID: UUID) {
+        tasks[todolistID] = tasks[todolistID]?.map { $0.id == taskID ? TaskItem(id: $0.id, title: newTitle, isDone: $0.isDone) : $0 }
+    }
+    
+    // Change Todolist Title
+    private func changeTodolistTitle(todolistTitle: String, todolistID: UUID) {
+        todolists = todolists.map { $0.id == todolistID ? TodolistType(id: $0.id, title: todolistTitle, filter: $0.filter) : $0 }
+    }
+    
+    
     
     
     var body: some View {
-           ScrollView {
-               LazyVStack(spacing: 20) {
-                   ForEach(todolists) {
-                       TodolistItem(
-                           id: $0.id,
-                           title: $0.title,
-                           filter: $0.filter,
-                           tasks: getFilteredTasks(todolist: $0),
-                           deleteTask: deleteTask,
-                           changeFilter: changeFilter,
-                           createTask: createTask,
-                           changeTasksStatus: changeTasksStatus,
-                           deleteTodolist: deleteTodolist,
-                       )
-                   }
-               }
-               .padding()
-           }
-           .background(.mint.opacity(0.2))
-       }
+        ScrollView {
+            LazyVStack(spacing: 20) {
+                
+                AddItemForm(createTask: createTodolist)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(.yellow.opacity(0.3))
+                            .shadow(color: .black.opacity(0.5), radius: 9, x: 9, y: 9)
+                    )
+                    .shadow(color: .black.opacity(0.5), radius: 9, x: 9, y: 9)
+                    .padding(.horizontal)
+                
+                ForEach(todolists) { el in
+                    TodolistItem(
+                        id: el.id,
+                        title: el.title,
+                        filter: el.filter,
+                        tasks: getFilteredTasks(todolist: el),
+                        deleteTask: deleteTask,
+                        changeFilter: changeFilter,
+                        createTask: createTask,
+                        changeTasksStatus: changeTasksStatus,
+                        deleteTodolist: deleteTodolist,
+                        changeTaskTitle: changeTaskTitle,
+                        changeTodolistTitle: changeTodolistTitle
+                    )
+                }
+            }
+            .padding()
+        }
+        .background(.mint.opacity(0.2))
+    }
 }
 
 #Preview {
