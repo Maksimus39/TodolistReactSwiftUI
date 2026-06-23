@@ -1,95 +1,134 @@
 import SwiftUI
 
 struct TodolistItem: View {
-     let id: UUID
-     let title: String
-     let filter: FilterValuesType
-     let tasks: [TaskItem]
-     let deleteTask: (UUID, UUID) -> Void
-     let changeFilter: (FilterValuesType, UUID) -> Void
-     let createTask: (String, UUID) -> Void
-     let changeTasksStatus: (UUID, Bool, UUID) -> Void
-     let deleteTodolist: (UUID) -> Void
-     let changeTaskTitle: (UUID, String, UUID) -> Void
-     let changeTodolistTitle: (String, UUID) -> Void
+    let id: UUID
+    @Binding var title: String
+    @Binding var filter: FilterValuesType
     
+    @Binding var allTasks: TasksStateType
+    let listId: UUID
     
-    private func handleTaskTitleChange(taskId: UUID, newTitle: String) {
-        changeTaskTitle(taskId, newTitle, id)
-    }
+    let deleteTodolist: (UUID) -> Void
+    let changeTaskTitle: (UUID, String, UUID) -> Void
+    let changeTasksStatus: (UUID, Bool, UUID) -> Void
+    let deleteTask: (UUID, UUID) -> Void
+    let createTask: (String, UUID) -> Void
     
-    private func createTaskCallback(newTaskTitle: String) {
-        createTask(newTaskTitle, id)
-    }
-    
-    private func changeTodolistTitleCallback(newTitle: String) {
-        changeTodolistTitle(newTitle, id)
+    private var filteredTasks: [TaskItem] {
+        let tasks = allTasks[listId] ?? []
+        switch filter {
+        case .all: return tasks
+        case .active: return tasks.filter { !$0.isDone }
+        case .completed: return tasks.filter { $0.isDone }
+        }
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack(spacing: 20) {
-                EditableSpan(text: title, onSave: changeTodolistTitleCallback)
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                EditableSpan(text: title, onSave: { title = $0 })
+                    .font(.title3)
+                    .fontWeight(.bold)
+                
                 Spacer()
-                UniversalButton(title: "Delete") {
-                    deleteTodolist(id)
+                
+                Menu {
+                    Button(role: .destructive) { deleteTodolist(id) } label: {
+                        Label("Удалить список", systemImage: "trash")
+                    }
+                } label: {
+                    Image(systemName: "ellipsis.circle")
+                        .foregroundColor(.secondary)
+                        .font(.title3)
                 }
             }
             
-            AddItemForm(createTask: createTaskCallback)
+            Picker("Фильтр", selection: $filter) {
+                ForEach(FilterValuesType.allCases, id: \.self) { type in
+                    Text(type.rawValue).tag(type)
+                }
+            }
+            .pickerStyle(.segmented)
             
-            VStack(alignment: .leading, spacing: 8) {
-                if tasks.isEmpty {
-                    Text("Список пуст")
+            AddItemForm(createTask: { createTask($0, listId) })
+            
+            VStack(spacing: 0) {
+                if filteredTasks.isEmpty {
+                    Text("Нет задач")
+                        .font(.subheadline)
                         .foregroundColor(.secondary)
-                        .padding(.vertical, 8)
+                        .padding(.vertical, 12)
+                        .frame(maxWidth: .infinity)
                 }
                 
-                ForEach(tasks) { task in
-                    HStack(spacing: 20) {
-                        Image(task.isDone ? .yes : .stop)
-                            .resizable()
-                            .frame(width: 25, height: 25)
-                            .onTapGesture {
-                                changeTasksStatus(task.id, !task.isDone, id)
-                            }
-                        
-                        EditableSpan(
-                            text: task.title,
-                            isDone: task.isDone,
-                            onSave: { newTitle in
-                                handleTaskTitleChange(taskId: task.id, newTitle: newTitle)
-                            }
-                        )
-                        .id(task.id)
-                        
-                        Spacer()
-                        
-                        UniversalButton(title: "Delete") {
-                            deleteTask(task.id, id)
-                        }
+                ForEach(filteredTasks) { task in
+                    TaskRow(
+                        task: task,
+                        onToggle: { changeTasksStatus(task.id, !task.isDone, listId) },
+                        onSaveTitle: { changeTaskTitle(task.id, $0, listId) },
+                        onDelete: { deleteTask(task.id, listId) }
+                    )
+                    .id(task.id) 
+                    
+                    if task.id != filteredTasks.last?.id {
+                        Divider().padding(.leading, 40)
                     }
                 }
             }
+            .padding(.top, 4)
+        }
+        .padding(16)
+        .background(.ultraThinMaterial)
+        .cornerRadius(16)
+        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+        .padding(.horizontal)
+    }
+}
+
+
+
+
+struct TaskRow: View {
+    let task: TaskItem
+    let onToggle: () -> Void
+    let onSaveTitle: (String) -> Void
+    let onDelete: () -> Void
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            Button(action: onToggle) {
+                Image(systemName: task.isDone ? "checkmark.circle.fill" : "circle")
+                    .symbolRenderingMode(.hierarchical)
+                    .foregroundStyle(task.isDone ? .green : .gray)
+                    .font(.title2)
+            }
+            .buttonStyle(.plain)
             
-            HStack(spacing: 16) {
-                ForEach(FilterValuesType.allCases, id: \.self) { filterType in
-                    UniversalButton(
-                        title: filterType.rawValue,
-                        onClickHandler: { changeFilter(filterType, id) },
-                        isActive: filter == filterType
-                    )
-                }
+            EditableSpan(text: task.title, isDone: task.isDone, onSave: onSaveTitle)
+                .font(.body)
+            
+            Spacer()
+        }
+        .padding(.vertical, 8)
+        .padding(.horizontal, 4)
+        
+        .contextMenu {
+            Button(role: .destructive) {
+                onDelete()
+            } label: {
+                Label("Удалить", systemImage: "trash")
             }
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 6)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(.yellow.opacity(0.3))
-                .shadow(color: .black.opacity(0.5), radius: 9, x: 9, y: 9)
-        )
-        .shadow(color: .black.opacity(0.5), radius: 9, x: 9, y: 9)
-        .padding()
+        
+        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+            Button(role: .destructive) {
+                onDelete()
+            } label: {
+                Label("Удалить", systemImage: "trash")
+            }
+            .tint(.red)
+        }
+        
+        .contentShape(Rectangle())
     }
 }

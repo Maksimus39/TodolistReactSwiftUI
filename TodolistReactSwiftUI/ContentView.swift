@@ -1,34 +1,13 @@
 import SwiftUI
 
-enum FilterValuesType: String, CaseIterable {
-    case all = "All"
-    case active = "Active"
-    case completed = "Completed"
-}
-
-struct TaskItem: Identifiable, Hashable {
-    let id: UUID
-    let title: String
-    let isDone: Bool
-}
-
-struct TodolistType: Identifiable {
-    let id: UUID
-    let title: String
-    var filter: FilterValuesType
-}
-
-typealias TasksStateType = [UUID: [TaskItem]]
-
 struct ContentView: View {
     static let iosId = UUID()
     static let reactId = UUID()
     
     @State var todolists: [TodolistType] = [
-        TodolistType(id: Self.iosId, title: "IOS developer", filter: .all),
-        TodolistType(id: Self.reactId, title: "React developer", filter: .all),
+        TodolistType(id: Self.iosId, title: "iOS Development", filter: .all),
+        TodolistType(id: Self.reactId, title: "React Learning", filter: .all),
     ]
-    
     
     @State var tasks: TasksStateType = [
         Self.iosId: [
@@ -78,102 +57,89 @@ struct ContentView: View {
         ]
     ]
     
-    
     private func getFilteredTasks(todolist: TodolistType) -> [TaskItem] {
         let allTasks = tasks[todolist.id] ?? []
-        
         switch todolist.filter {
-        case .all:
-            return allTasks
-        case .active:
-            return allTasks.filter { !$0.isDone }
-        case .completed:
-            return allTasks.filter { $0.isDone }
+        case .all: return allTasks
+        case .active: return allTasks.filter { !$0.isDone }
+        case .completed: return allTasks.filter { $0.isDone }
         }
     }
     
-    // Delete task
-    private func deleteTask(deleteTask: UUID, todolistID: UUID) {
-        tasks[todolistID] = tasks[todolistID]?.filter { $0.id != deleteTask }
+    private func deleteTask(taskId: UUID, todolistID: UUID) {
+        tasks[todolistID] = tasks[todolistID]?.filter { $0.id != taskId }
     }
     
-    // Change filter
-    private func changeFilter(filterTasks: FilterValuesType, todolistID: UUID) {
-        todolists = todolists.map { $0.id == todolistID ? TodolistType(id: $0.id, title: $0.title, filter: filterTasks) : $0 }
+    private func changeFilter(filter: FilterValuesType, todolistID: UUID) {
+        if let index = todolists.firstIndex(where: { $0.id == todolistID }) {
+            todolists[index].filter = filter
+        }
     }
     
-    // Create task
-    private func createTask(taskTitle: String, todolistID: UUID) {
-        let newTask = TaskItem(id: UUID(), title: taskTitle, isDone: false)
+    private func createTask(title: String, todolistID: UUID) {
+        let newTask = TaskItem(id: UUID(), title: title, isDone: false)
         tasks[todolistID] = [newTask] + (tasks[todolistID] ?? [])
     }
     
-    // Change task status
     private func changeTasksStatus(taskID: UUID, newStatus: Bool, todolistID: UUID) {
-        tasks[todolistID] = tasks[todolistID]?.map { $0.id == taskID ? TaskItem(id: $0.id, title: $0.title, isDone: newStatus) : $0 }
+        tasks[todolistID] = tasks[todolistID]?.map {
+            $0.id == taskID ? TaskItem(id: $0.id, title: $0.title, isDone: newStatus) : $0
+        }
     }
     
-    // Delete todolist
     private func deleteTodolist(todolistID: UUID) {
-        todolists = todolists.filter { $0.id != todolistID }
+        todolists.removeAll { $0.id == todolistID }
         tasks[todolistID] = nil
     }
     
-    // Create Todolist
-    private func createTodolist(newTodolist: String) {
-        let newList = TodolistType(id: UUID(), title: newTodolist, filter: .all)
+    private func createTodolist(title: String) {
+        let newList = TodolistType(id: UUID(), title: title, filter: .all)
         todolists.insert(newList, at: 0)
-        
         tasks[newList.id] = []
     }
     
-    // Change Task Title
     private func changeTaskTitle(taskID: UUID, newTitle: String, todolistID: UUID) {
-        tasks[todolistID] = tasks[todolistID]?.map { $0.id == taskID ? TaskItem(id: $0.id, title: newTitle, isDone: $0.isDone) : $0 }
+        tasks[todolistID] = tasks[todolistID]?.map {
+            $0.id == taskID ? TaskItem(id: $0.id, title: newTitle, isDone: $0.isDone) : $0
+        }
     }
     
-    // Change Todolist Title
-    private func changeTodolistTitle(todolistTitle: String, todolistID: UUID) {
-        todolists = todolists.map { $0.id == todolistID ? TodolistType(id: $0.id, title: todolistTitle, filter: $0.filter) : $0 }
+    private func changeTodolistTitle(title: String, todolistID: UUID) {
+        if let index = todolists.firstIndex(where: { $0.id == todolistID }) {
+            todolists[index].title = title
+        }
     }
-    
-    
-    
     
     var body: some View {
-        ScrollView {
-            LazyVStack(spacing: 20) {
-                
-                AddItemForm(createTask: createTodolist)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(.yellow.opacity(0.3))
-                            .shadow(color: .black.opacity(0.5), radius: 9, x: 9, y: 9)
-                    )
-                    .shadow(color: .black.opacity(0.5), radius: 9, x: 9, y: 9)
-                    .padding(.horizontal)
-                
-                ForEach(todolists) { el in
-                    TodolistItem(
-                        id: el.id,
-                        title: el.title,
-                        filter: el.filter,
-                        tasks: getFilteredTasks(todolist: el),
-                        deleteTask: deleteTask,
-                        changeFilter: changeFilter,
-                        createTask: createTask,
-                        changeTasksStatus: changeTasksStatus,
-                        deleteTodolist: deleteTodolist,
-                        changeTaskTitle: changeTaskTitle,
-                        changeTodolistTitle: changeTodolistTitle
-                    )
+        NavigationStack {
+            ScrollView {
+                LazyVStack(spacing: 16) {
+                    
+                    AddListForm(createList: createTodolist)
+                        .padding(.horizontal)
+                    
+                    ForEach($todolists) { $list in
+                        TodolistItem(
+                            id: list.id,
+                            title: $list.title,
+                            filter: $list.filter,
+                            allTasks: $tasks,
+                            listId: list.id,
+                            deleteTodolist: deleteTodolist,
+                            changeTaskTitle: changeTaskTitle,
+                            changeTasksStatus: changeTasksStatus,
+                            deleteTask: deleteTask,
+                            createTask: createTask
+                        )
+                    }
                 }
+                .padding(.vertical)
             }
-            .padding()
+            .scrollDismissesKeyboard(.interactively)
+            .background(Color(.systemGroupedBackground))
+            .navigationTitle("Мои Проекты")
+            .navigationBarTitleDisplayMode(.large)
         }
-        .background(.mint.opacity(0.2))
     }
 }
 
