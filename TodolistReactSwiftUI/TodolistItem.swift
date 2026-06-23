@@ -51,14 +51,14 @@ struct TodolistItem: View {
             .pickerStyle(.segmented)
             
             AddItemForm(createTask: { createTask($0, listId) })
-            
-            VStack(spacing: 0) {
+            List {
                 if filteredTasks.isEmpty {
                     Text("Нет задач")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                         .padding(.vertical, 12)
                         .frame(maxWidth: .infinity)
+                        .listRowBackground(Color.clear)
                 }
                 
                 ForEach(filteredTasks) { task in
@@ -68,24 +68,23 @@ struct TodolistItem: View {
                         onSaveTitle: { changeTaskTitle(task.id, $0, listId) },
                         onDelete: { deleteTask(task.id, listId) }
                     )
-                    .id(task.id) 
-                    
-                    if task.id != filteredTasks.last?.id {
-                        Divider().padding(.leading, 40)
-                    }
+                    .listRowSeparator(.visible)
+                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                    .listRowBackground(Color.clear)
                 }
             }
+            .listStyle(.plain)
+            .scrollDisabled(true)
+            .frame(height: CGFloat(filteredTasks.count) * 56 + (filteredTasks.isEmpty ? 40 : 0))
             .padding(.top, 4)
         }
         .padding(16)
         .background(.ultraThinMaterial)
         .cornerRadius(16)
-        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+        .shadow(color: Color.black.opacity(0.3), radius: 5, x: 0, y: 2)
         .padding(.horizontal)
     }
 }
-
-
 
 
 struct TaskRow: View {
@@ -111,15 +110,6 @@ struct TaskRow: View {
         }
         .padding(.vertical, 8)
         .padding(.horizontal, 4)
-        
-        .contextMenu {
-            Button(role: .destructive) {
-                onDelete()
-            } label: {
-                Label("Удалить", systemImage: "trash")
-            }
-        }
-        
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
             Button(role: .destructive) {
                 onDelete()
@@ -128,7 +118,5 @@ struct TaskRow: View {
             }
             .tint(.red)
         }
-        
-        .contentShape(Rectangle())
     }
 }

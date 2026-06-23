@@ -82,9 +82,7 @@ struct ContentView: View {
     }
     
     private func changeTasksStatus(taskID: UUID, newStatus: Bool, todolistID: UUID) {
-        tasks[todolistID] = tasks[todolistID]?.map {
-            $0.id == taskID ? TaskItem(id: $0.id, title: $0.title, isDone: newStatus) : $0
-        }
+        tasks[todolistID] = tasks[todolistID]?.map {$0.id == taskID ? TaskItem(id: $0.id, title: $0.title, isDone: newStatus) : $0}
     }
     
     private func deleteTodolist(todolistID: UUID) {
@@ -99,15 +97,11 @@ struct ContentView: View {
     }
     
     private func changeTaskTitle(taskID: UUID, newTitle: String, todolistID: UUID) {
-        tasks[todolistID] = tasks[todolistID]?.map {
-            $0.id == taskID ? TaskItem(id: $0.id, title: newTitle, isDone: $0.isDone) : $0
-        }
+        tasks[todolistID] = tasks[todolistID]?.map {$0.id == taskID ? TaskItem(id: $0.id, title: newTitle, isDone: $0.isDone) : $0}
     }
     
     private func changeTodolistTitle(title: String, todolistID: UUID) {
-        if let index = todolists.firstIndex(where: { $0.id == todolistID }) {
-            todolists[index].title = title
-        }
+        tasks[todolistID] = tasks[todolistID]?.map {$0.id == todolistID ? TaskItem(id: $0.id, title: title, isDone: $0.isDone) : $0}
     }
     
     var body: some View {
