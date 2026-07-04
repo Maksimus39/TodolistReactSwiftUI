@@ -12,11 +12,11 @@ struct EditableSpan: View {
     var body: some View {
         Group {
             if isEditing {
-                TextField("Изменить", text: $editingText)
+                TextField(Constants.change, text: $editingText)
                     .onSubmit { save() }
                     .onDisappear { save() }
             } else {
-                Text(text.isEmpty ? "Без названия" : text)
+                Text(text.isEmpty ? Constants.untitled : text)
                     .strikethrough(isDone == true, color: .secondary)
                     .opacity(isDone == true ? 0.6 : 1.0)
                     .contentShape(Rectangle())

@@ -5,7 +5,7 @@ struct TodolistItem: View {
     @Binding var title: String
     @Binding var filter: FilterValuesType
     
-    @Binding var allTasks: TasksStateType
+    let allTasks: [TaskItem]
     let listId: UUID
     
     let deleteTodolist: (UUID) -> Void
@@ -15,7 +15,7 @@ struct TodolistItem: View {
     let createTask: (String, UUID) -> Void
     
     private var filteredTasks: [TaskItem] {
-        let tasks = allTasks[listId] ?? []
+        let tasks = allTasks
         switch filter {
         case .all: return tasks
         case .active: return tasks.filter { !$0.isDone }
@@ -34,16 +34,16 @@ struct TodolistItem: View {
                 
                 Menu {
                     Button(role: .destructive) { deleteTodolist(id) } label: {
-                        Label("Удалить список", systemImage: "trash")
+                        Label(Constants.deleteList, systemImage: Constants.trasch)
                     }
                 } label: {
-                    Image(systemName: "ellipsis.circle")
+                    Image(systemName: Constants.ellipsisCircle)
                         .foregroundColor(.secondary)
                         .font(.title3)
                 }
             }
             
-            Picker("Фильтр", selection: $filter) {
+            Picker(Constants.filter, selection: $filter) {
                 ForEach(FilterValuesType.allCases, id: \.self) { type in
                     Text(type.rawValue).tag(type)
                 }
@@ -53,7 +53,7 @@ struct TodolistItem: View {
             AddItemForm(createTask: { createTask($0, listId) })
             List {
                 if filteredTasks.isEmpty {
-                    Text("Нет задач")
+                    Text(Constants.notTasks)
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                         .padding(.vertical, 12)
@@ -96,7 +96,7 @@ struct TaskRow: View {
     var body: some View {
         HStack(spacing: 12) {
             Button(action: onToggle) {
-                Image(systemName: task.isDone ? "checkmark.circle.fill" : "circle")
+                Image(systemName: task.isDone ? Constants.checkmarkCircleFill : Constants.circle)
                     .symbolRenderingMode(.hierarchical)
                     .foregroundStyle(task.isDone ? .green : .gray)
                     .font(.title2)
@@ -114,7 +114,7 @@ struct TaskRow: View {
             Button(role: .destructive) {
                 onDelete()
             } label: {
-                Label("Удалить", systemImage: "trash")
+                Label(Constants.delete, systemImage: Constants.trash)
             }
             .tint(.red)
         }
