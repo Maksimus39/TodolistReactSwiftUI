@@ -1,18 +1,26 @@
 import Observation
 
 
+
 @Observable final class ContentViewModel {
-    private(set) var state: AppTodolistState
+    private(set) var state: TodolistTasksState
     
-    init(initialState: AppTodolistState = AppTodolistState(todolists: [], tasks: [:])) {
+    init(initialState: TodolistTasksState = TodolistTasksState(todolists: [], tasks: [:])) {
         self.state = initialState
     }
     
     
-    func dispatchData(_ action: TodoAction) {
-        state = todoAndTasksDataReducer(state: state, action: action)
+    
+    
+    func dispatchTodoData(_ action: TodoAction) {
+        state = todoReducer(state: state, action: action)
+    }
+    
+    func dispatchTasksData(_ action: TasksAction) {
+        state = tasksReducer(state: state, action: action)
     }
 }
+
 
 
 

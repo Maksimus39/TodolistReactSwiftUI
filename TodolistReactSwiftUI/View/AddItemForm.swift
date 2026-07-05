@@ -1,8 +1,9 @@
 import SwiftUI
 
-
 struct AddItemForm: View {
-    let createTask: (String) -> Void
+    @Environment(\.todoStore) private var store
+    
+    let todolistID: UUID
     @State private var text = ""
     @State private var isError = false
     
@@ -30,7 +31,7 @@ struct AddItemForm: View {
                         isError = true
                     } else {
                         isError = false
-                        createTask(trimmed)
+                        store?.dispatchTasksData(.createTask(todolistID: todolistID, title: trimmed))
                         text = ""
                     }
                 }) {
@@ -50,8 +51,3 @@ struct AddItemForm: View {
         }
     }
 }
-
-
-
-
-

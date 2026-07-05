@@ -1,9 +1,7 @@
 import SwiftUI
 
-
-
 struct AddListForm: View {
-    let createList: (String) -> Void
+    @Environment(\.todoStore) private var store
     @State private var text = ""
     @State private var isError = false
     
@@ -17,7 +15,7 @@ struct AddListForm: View {
                     .cornerRadius(8)
                     .overlay(
                         RoundedRectangle(cornerRadius: 8)
-                            .stroke(isError ? Color.red : Color.clear, lineWidth: 2)
+                            .stroke(isError ? .red : .clear, lineWidth: 2)
                     )
                     .onChange(of: text) { _, newValue in
                         if isError && !newValue.trimmingCharacters(in: .whitespaces).isEmpty {
@@ -31,18 +29,17 @@ struct AddListForm: View {
                         isError = true
                     } else {
                         isError = false
-                        createList(trimmed)
+                        store?.dispatchTodoData(.createTodolist(title: trimmed))
                         text = ""
                     }
                 }
+                .padding(.trailing, 5)
                 .buttonStyle(.borderedProminent)
                 .opacity(text.trimmingCharacters(in: .whitespaces).isEmpty ? 0.5 : 1.0)
             }
             .background(.ultraThinMaterial)
             .cornerRadius(8)
             .shadow(color: .black.opacity(0.3), radius: 5, x: 0, y: 2)
-            
-            
             
             if isError {
                 Text(Constants.listTitle)

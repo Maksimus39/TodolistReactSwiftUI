@@ -2,7 +2,9 @@ import Foundation
 
 
 enum FilterValuesType: String, CaseIterable {
-    case all, active, completed
+    case all = "Все"
+    case active = "Активные"
+    case completed = "Выполненные"
 }
 
 struct TaskItem: Identifiable, Equatable {

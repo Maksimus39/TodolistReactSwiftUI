@@ -1,22 +1,17 @@
 import SwiftUI
 
 struct TodolistItem: View {
-    let id: UUID
-    @Binding var title: String
-    @Binding var filter: FilterValuesType
+    @Environment(\.todoStore) private var store
     
-    let allTasks: [TaskItem]
-    let listId: UUID
+    let list: TodolistType
     
-    let deleteTodolist: (UUID) -> Void
-    let changeTaskTitle: (UUID, String, UUID) -> Void
-    let changeTasksStatus: (UUID, Bool, UUID) -> Void
-    let deleteTask: (UUID, UUID) -> Void
-    let createTask: (String, UUID) -> Void
+    init(list: TodolistType) {
+        self.list = list
+    }
     
     private var filteredTasks: [TaskItem] {
-        let tasks = allTasks
-        switch filter {
+        let tasks = store?.state.tasks[list.id] ?? []
+        switch list.filter {
         case .all: return tasks
         case .active: return tasks.filter { !$0.isDone }
         case .completed: return tasks.filter { $0.isDone }
@@ -26,14 +21,21 @@ struct TodolistItem: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                EditableSpan(text: title, onSave: { title = $0 })
-                    .font(.title3)
-                    .fontWeight(.bold)
+                EditableSpan(
+                    text: list.title,
+                    onSave: { newValue in
+                        store?.dispatchTodoData(.changeTodolistTitle(id: list.id, title: newValue))
+                    }
+                )
+                .font(.title3)
+                .fontWeight(.bold)
                 
                 Spacer()
                 
                 Menu {
-                    Button(role: .destructive) { deleteTodolist(id) } label: {
+                    Button(role: .destructive) {
+                        store?.dispatchTodoData(.deleteTodolist(id: list.id))
+                    } label: {
                         Label(Constants.deleteList, systemImage: Constants.trasch)
                     }
                 } label: {
@@ -43,34 +45,34 @@ struct TodolistItem: View {
                 }
             }
             
-            Picker(Constants.filter, selection: $filter) {
+            Picker(Constants.filter, selection: Binding(
+                get: { list.filter },
+                set: { store?.dispatchTodoData(.changeFilter(id: list.id, filter: $0)) }
+            )) {
                 ForEach(FilterValuesType.allCases, id: \.self) { type in
                     Text(type.rawValue).tag(type)
                 }
             }
             .pickerStyle(.segmented)
             
-            AddItemForm(createTask: { createTask($0, listId) })
+            
+            AddItemForm(todolistID: list.id)
+            
             List {
                 if filteredTasks.isEmpty {
                     Text(Constants.notTasks)
                         .font(.subheadline)
                         .foregroundColor(.secondary)
-                        .padding(.vertical, 12)
+                        .padding(.vertical, 2)
                         .frame(maxWidth: .infinity)
                         .listRowBackground(Color.clear)
                 }
                 
                 ForEach(filteredTasks) { task in
-                    TaskRow(
-                        task: task,
-                        onToggle: { changeTasksStatus(task.id, !task.isDone, listId) },
-                        onSaveTitle: { changeTaskTitle(task.id, $0, listId) },
-                        onDelete: { deleteTask(task.id, listId) }
-                    )
-                    .listRowSeparator(.visible)
-                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                    .listRowBackground(Color.clear)
+                    TaskRow(task: task, todolistID: list.id)
+                        .listRowSeparator(.visible)
+                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                        .listRowBackground(Color.clear)
                 }
             }
             .listStyle(.plain)
@@ -83,40 +85,5 @@ struct TodolistItem: View {
         .cornerRadius(16)
         .shadow(color: Color.black.opacity(0.3), radius: 5, x: 0, y: 2)
         .padding(.horizontal)
-    }
-}
-
-
-struct TaskRow: View {
-    let task: TaskItem
-    let onToggle: () -> Void
-    let onSaveTitle: (String) -> Void
-    let onDelete: () -> Void
-    
-    var body: some View {
-        HStack(spacing: 12) {
-            Button(action: onToggle) {
-                Image(systemName: task.isDone ? Constants.checkmarkCircleFill : Constants.circle)
-                    .symbolRenderingMode(.hierarchical)
-                    .foregroundStyle(task.isDone ? .green : .gray)
-                    .font(.title2)
-            }
-            .buttonStyle(.plain)
-            
-            EditableSpan(text: task.title, isDone: task.isDone, onSave: onSaveTitle)
-                .font(.body)
-            
-            Spacer()
-        }
-        .padding(.vertical, 8)
-        .padding(.horizontal, 4)
-        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-            Button(role: .destructive) {
-                onDelete()
-            } label: {
-                Label(Constants.delete, systemImage: Constants.trash)
-            }
-            .tint(.red)
-        }
     }
 }

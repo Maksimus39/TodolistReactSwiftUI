@@ -20,7 +20,7 @@ struct Constants {
     // image
     static let plusCircleFill: String = "plus.circle.fill"
     static let trasch: String = "trash"
-    static let ellipsisCircle  = "ellipsis.circle"
+    static let ellipsisCircle: String  = "ellipsis.circle"
     static let checkmarkCircleFill: String = "checkmark.circle.fill"
     static let circle: String = "circle"
     static let trash: String = "trash"

@@ -29,6 +29,30 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES"
       shouldAutocreateTestPlan = "YES">
+      <Testables>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "8561A58D2FFA43C300E2220C"
+               BuildableName = "TodolistSwiftUITests.xctest"
+               BlueprintName = "TodolistSwiftUITests"
+               ReferencedContainer = "container:TodolistReactSwiftUI.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "8561A5A32FFA469E00E2220C"
+               BuildableName = "TodolistSwiftUITests_v2.xctest"
+               BlueprintName = "TodolistSwiftUITests_v2"
+               ReferencedContainer = "container:TodolistReactSwiftUI.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+      </Testables>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Release"

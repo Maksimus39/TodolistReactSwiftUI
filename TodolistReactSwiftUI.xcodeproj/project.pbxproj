@@ -3,11 +3,11 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 100;
 	objects = {
 
 /* Begin PBXFileReference section */
-		857F613D2FCC1FEA00F3C786 /* TodolistReactSwiftUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TodolistReactSwiftUI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		857F613D2FCC1FEA00F3C786 /* TodolistReactSwiftUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = TodolistReactSwiftUI.app; path = "/Users/application/IOS/TodolistReactSwiftUI/build/Debug-iphoneos/TodolistReactSwiftUI.app"; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -21,10 +21,8 @@
 /* Begin PBXFrameworksBuildPhase section */
 		857F613A2FCC1FEA00F3C786 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
@@ -33,16 +31,7 @@
 			isa = PBXGroup;
 			children = (
 				857F613F2FCC1FEA00F3C786 /* TodolistReactSwiftUI */,
-				857F613E2FCC1FEA00F3C786 /* Products */,
 			);
-			sourceTree = "<group>";
-		};
-		857F613E2FCC1FEA00F3C786 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				857F613D2FCC1FEA00F3C786 /* TodolistReactSwiftUI.app */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -58,14 +47,10 @@
 			);
 			buildRules = (
 			);
-			dependencies = (
-			);
 			fileSystemSynchronizedGroups = (
 				857F613F2FCC1FEA00F3C786 /* TodolistReactSwiftUI */,
 			);
 			name = TodolistReactSwiftUI;
-			packageProductDependencies = (
-			);
 			productName = TodolistReactSwiftUI;
 			productReference = 857F613D2FCC1FEA00F3C786 /* TodolistReactSwiftUI.app */;
 			productType = "com.apple.product-type.application";
@@ -77,7 +62,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 2650;
+				LastSwiftUpdateCheck = 2660;
 				LastUpgradeCheck = 2660;
 				TargetAttributes = {
 					857F613C2FCC1FEA00F3C786 = {
@@ -94,8 +79,10 @@
 			);
 			mainGroup = 857F61342FCC1FEA00F3C786;
 			minimizedProjectReferenceProxies = 1;
-			preferredProjectObjectVersion = 77;
-			productRefGroup = 857F613E2FCC1FEA00F3C786 /* Products */;
+			packageReferences = (
+			);
+			preferredProjectObjectVersion = 100;
+			productRefGroup = 857F61342FCC1FEA00F3C786;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -107,25 +94,21 @@
 /* Begin PBXResourcesBuildPhase section */
 		857F613B2FCC1FEA00F3C786 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		857F61392FCC1FEA00F3C786 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		857F61462FCC1FEC00F3C786 /* Debug */ = {
+		857F61462FCC1FEC00F3C786 /* Debug configuration for PBXProject "TodolistReactSwiftUI" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -190,7 +173,7 @@
 			};
 			name = Debug;
 		};
-		857F61472FCC1FEC00F3C786 /* Release */ = {
+		857F61472FCC1FEC00F3C786 /* Release configuration for PBXProject "TodolistReactSwiftUI" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -248,7 +231,7 @@
 			};
 			name = Release;
 		};
-		857F61492FCC1FEC00F3C786 /* Debug */ = {
+		857F61492FCC1FEC00F3C786 /* Debug configuration for PBXNativeTarget "TodolistReactSwiftUI" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -285,7 +268,7 @@
 			};
 			name = Debug;
 		};
-		857F614A2FCC1FEC00F3C786 /* Release */ = {
+		857F614A2FCC1FEC00F3C786 /* Release configuration for PBXNativeTarget "TodolistReactSwiftUI" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -328,19 +311,17 @@
 		857F61382FCC1FEA00F3C786 /* Build configuration list for PBXProject "TodolistReactSwiftUI" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				857F61462FCC1FEC00F3C786 /* Debug */,
-				857F61472FCC1FEC00F3C786 /* Release */,
+				857F61462FCC1FEC00F3C786 /* Debug configuration for PBXProject "TodolistReactSwiftUI" */,
+				857F61472FCC1FEC00F3C786 /* Release configuration for PBXProject "TodolistReactSwiftUI" */,
 			);
-			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 		857F61482FCC1FEC00F3C786 /* Build configuration list for PBXNativeTarget "TodolistReactSwiftUI" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				857F61492FCC1FEC00F3C786 /* Debug */,
-				857F614A2FCC1FEC00F3C786 /* Release */,
+				857F61492FCC1FEC00F3C786 /* Debug configuration for PBXNativeTarget "TodolistReactSwiftUI" */,
+				857F614A2FCC1FEC00F3C786 /* Release configuration for PBXNativeTarget "TodolistReactSwiftUI" */,
 			);
-			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
